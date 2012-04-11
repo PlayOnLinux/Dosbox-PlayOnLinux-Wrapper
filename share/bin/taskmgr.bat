@@ -1,3 +1,4 @@
 @echo off
-This feature requires wine mode
+echo This feature requires wine mode
+pause
 exit
