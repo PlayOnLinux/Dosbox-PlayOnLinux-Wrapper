@@ -50,8 +50,7 @@ echo "echo Dosbox front-end for $APPLICATION_TITLE" >> autoexec.bat
 echo "echo." >> autoexec.bat
 if [ -e "$WINEPREFIX/drive_c/autoexec.bat" ]; then
 	echo "echo [$APPLICATION_TITLE] Running autoexec.bat" >> autoexec.bat
-	echo "C:" >> autoexec.bat
-	echo "autoexec.bat" >> autoexec.bat
+	cat $WINEPREFIX/drive_c/autoexec.bat >> autoexec.bat
 fi
 echo "$letter:" >> autoexec.bat
 echo "echo [$APPLICATION_TITLE] Switching directory : $(python $winedir/../share/shortize.py "$current_rep_win")" >> autoexec.bat
