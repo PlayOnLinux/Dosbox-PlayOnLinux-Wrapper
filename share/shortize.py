@@ -3,7 +3,7 @@ import sys, string
 
 tmp = sys.argv[1]
 tmp = tmp.replace(" ","")
-tmp = string.split(sys.argv[1],"\\")
+tmp = string.split(tmp,"\\")
 
 i = 0
 for content in tmp:
