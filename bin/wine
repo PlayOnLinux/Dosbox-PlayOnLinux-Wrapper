@@ -33,8 +33,7 @@ realpath="$(rwinepath -w "$1")"
 realpath="${realpath/Z:/W:}"
 
 current_rep_win="${current_rep_win_first/Z:/W:}"
-current_rep_win="${current_rep_win/./}"
-	letter=${current_rep_win:0:1}
+letter=${current_rep_win:0:1}
 
 rm -rf "$POL_USER_ROOT/tmp/dostmp"
 mkdir -p "$POL_USER_ROOT/tmp/dostmp"
