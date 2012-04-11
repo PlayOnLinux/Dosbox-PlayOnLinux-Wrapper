@@ -2,7 +2,9 @@
 import sys, string
 
 tmp = sys.argv[1]
+tmp = tmp.replace(" ","")
 tmp = string.split(sys.argv[1],"\\")
+
 i = 0
 for content in tmp:
 	content2 = string.split(content,".")
