@@ -34,7 +34,7 @@ realpath="${realpath/Z:/W:}"
 
 current_rep_win="${current_rep_win_first/Z:/W:}"
 current_rep_win="${current_rep_win/./}"
-letter=${current_rep_win:0:1}
+	letter=${current_rep_win:0:1}
 
 rm -rf "$POL_USER_ROOT/tmp/dostmp"
 mkdir -p "$POL_USER_ROOT/tmp/dostmp"
@@ -52,7 +52,7 @@ echo "echo [$APPLICATION_TITLE] Running : $(basename "$1")" >> autoexec.bat
 
 echo "$(basename "$1")" >> autoexec.bat
 
-if [ ! "$WINEDEBUG" = "-all" ]; then	
+if [ "$WINEDEBUG" = "-all" ]; then	
 echo "exit" >> autoexec.bat
 fi
 
