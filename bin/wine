@@ -9,7 +9,7 @@ echo "Dosbox 0.74"
 winepath()
 {
 	# Stron minimum requirement for winepath
-	$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/wine winepath "$@" 2> /dev/null
+	$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/winepath winepath "$@" 2> /dev/null
 }
 
 if [ "$1" = "wineprefixcreate" ]
