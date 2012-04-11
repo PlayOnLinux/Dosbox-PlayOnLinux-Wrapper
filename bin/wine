@@ -5,11 +5,12 @@
 # Still a problem with long names
 
 echo "Dosbox 0.74"
-
-winepath()
+echo "Working in $WINEPREFIX"
+winedir="$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/"
+rwinepath()
 {
 	# Stron minimum requirement for winepath
-	$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/winepath winepath "$@" 2> /dev/null
+	env "$winedir/winepath" winepath "$@" 2> /dev/null
 }
 
 if [ "$1" = "wineprefixcreate" ]
@@ -23,15 +24,19 @@ then
 	exit
 fi
 current_rep_unix="$(dirname "$1")"
-
+current_rep_unix="$PWD"
 source "$PLAYONLINUX/lib/sources"
-current_rep_win_first="$(winepath -w $current_rep_unix)"
-winedir="$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/"
-realpath="$(winepath -w "$1")"
+echo $current_rep_unix
+current_rep_win_first="$(rwinepath -w $current_rep_unix)"
+echo $current_rep_win_first
+realpath="$(rwinepath -w "$1")"
 
 realpath="${realpath/Z:/W:}"
 current_rep_win="${current_rep_win_first/Z:/W:}"
+current_rep_win="${current_rep_win/./}"
+echo $current_rep_win
 letter=${current_rep_win:0:1}
+
 mkdir -p "$POL_USER_ROOT/tmp/dostmp"
 	
 	cd "$POL_USER_ROOT/tmp/dostmp"
