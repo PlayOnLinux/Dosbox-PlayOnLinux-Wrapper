@@ -9,8 +9,9 @@ echo "Dosbox 0.74"
 winepath()
 {
 	# Stron minimum requirement for winepath
-	$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/wine winepath 2> /dev/null
+	$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/wine winepath "$@" 2> /dev/null
 }
+
 if [ "$1" = "wineprefixcreate" ]
 then
 	mkdir -p "$WINEPREFIX/drive_c"
@@ -24,7 +25,7 @@ fi
 current_rep_unix="$(dirname "$1")"
 
 source "$PLAYONLINUX/lib/sources"
-current_rep_win_first="$(winepath" -w $current_rep_unix)"
+current_rep_win_first="$(winepath -w $current_rep_unix)"
 winedir="$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/"
 realpath="$(winepath -w "$1")"
 
