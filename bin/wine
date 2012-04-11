@@ -10,7 +10,7 @@ winedir="$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/"
 rwinepath()
 {
 	# Stron minimum requirement for winepath
-	env "$winedir/winepath" winepath "$@" 2> /dev/null
+	"$winedir/winepath" winepath "$@" 2> /dev/null
 }
 
 if [ "$1" = "wineprefixcreate" ]
