@@ -1,0 +1,288 @@
+#!/bin/bash
+
+### DOSBOX Wrapper for PlayOnLinux and PlayOnMac
+# playonlinux_dos.cfg
+# manual_mount = true or false + all dosbox settings
+# auto_resolution = true or false
+
+# Directly get the working directory
+WORKING_DIRECTORY="$PWD"
+
+if [ -e "$WINEPREFIX/playonlinux_dos.cfg" ]; then
+	source "$WINEPREFIX/playonlinux_dos.cfg"
+fi
+
+echo "Dosbox front-end for PlayOnLinux"
+echo "[PlayOnLinux] Working in $WINEPREFIX"
+
+rwinepath()
+{
+	# Stron minimum requirement for winepath
+	"$winedir/wine.real" winepath "$@" 2> /dev/null
+}
+
+# Just in case
+if [ "$1" = "wineprefixcreate" -o "$1" = "wineboot" ]; then
+	mkdir -p "$WINEPREFIX/drive_c"
+	exit
+fi
+if [ "$WINEPREFIX" = "" ]; then
+	echo "WINEPREFIX var is not set"
+	exit
+fi
+
+
+
+# Now, we get the script directory
+winedir="$(dirname $0)"
+cd "$winedir"
+winedir="$PWD"
+
+# Getting the unix path
+cd "$WORKING_DIRECTORY"
+current_rep_unix="$(dirname "$1")"
+cd "$current_rep_unix"
+current_rep_unix="$PWD"
+
+# Getting windows directory of the current wineprefix
+current_rep_win="$(rwinepath -w "$current_rep_unix")"
+current_rep_win="${current_rep_win/Z:/W:}"
+letter=${current_rep_win:0:1}
+echo "[PlayOnLinux] Detecting program directory to run: $current_rep_win"
+
+# Managing tmp
+tmp_directory="$WINEPREFIX/PlayOnLinux_DOSBox_tmp"
+mkdir -p "$tmp_directory"
+
+# Detecting drives
+cd "$WINEPREFIX/dosdevices"
+drivelist="$(ls -1 | grep -v '::' | grep -v 'z:' | tr -d ':')" 
+
+cp "$winedir/../share/bin/"* "$tmp_directory"
+cd "$tmp_directory"
+
+echo "@echo off" > autoexec.bat
+for drive in $drivelist; do
+	realname="$(readlink "$WINEPREFIX"/dosdevices/$drive:)"
+	if [ ! "${realname::1}" = "/" ]; then
+		realname="$WINEPREFIX/dosdevices/$realname"
+	fi
+	if [ -e "$WINEPREFIX/dosdevices/$drive::" ]; then
+		if [ ! "$manual_mount" = "true" ]; then
+			# Consider that it is a cdrom
+			echo "MOUNT $drive \"$realname\" -t cdrom -usecd 0 -ioctl" >> autoexec.bat
+		fi
+	else
+		echo "MOUNT $drive \"$realname\"" >> autoexec.bat
+	fi
+done
+APPLICATION_TITLE="PlayOnLinux"
+EXECNAME="$1"
+shift
+cat << EOF_AUTOEXEC >> autoexec.bat
+PATH=Z:;Y:
+cls
+echo Dosbox front-end for $APPLICATION_TITLE
+echo.
+echo [$APPLICATION_TITLE] Running autoexec.bat
+$(cat "$WINEPREFIX"/drive_c/autoexec.bat)
+$letter:
+echo [$APPLICATION_TITLE] Switching directory : $(python $winedir/../share/shortize.py "$current_rep_win")
+cd $(python $winedir/../share/shortize.py "$current_rep_win")
+echo [$APPLICATION_TITLE] Running : $(basename "$EXECNAME")
+$(basename "$(python $winedir/../share/shortize.py "$(basename "$EXECNAME")")") $@
+EOF_AUTOEXEC
+
+if [ "$WINEDEBUG" = "-all" ]; then	
+	echo "exit" >> autoexec.bat
+fi
+
+cd "$tmp_directory"
+sdl_fullscreen="true"
+sdl_fulldouble="false"
+# if [ ! "$sdl_fullresolution" ]; then
+#	POL_LoadVar_ScreenResolution
+# 	sdl_fullresolution="${ScreenWidth}x${ScreenHeight}"
+# fi
+sdl_windowsresolution="original"
+sdl_output="opengl"
+sdl_autolock="true"
+sdl_sensitivity="100"
+sdl_waitonerror="true"
+sdl_priority="higher,normal"
+sdl_mapperfile="mapper.txt"
+sdl_usescancodes="true"
+
+dosbox_language=""
+dosbox_machine="svga_s3"
+dosbox_captures="capture"
+dosbox_memsize="32"
+
+render_frameskip="0"
+render_aspect="false"
+render_scaler="normal2x"
+
+cpu_core="auto"
+cpu_cycles="auto"
+cpu_cycleup="500"
+cpu_cycledown="20"
+
+mixer_nosound="false"
+mixer_rate="22050"
+mixer_blocksize="2048"
+mixer_prebuffer="10"
+
+midi_mpu401="intelligent"
+midi_mididevice="default"
+midi_midiconfig=""
+
+sblaster_sbtype="sb16"
+sblaster_sbbase="220"
+sblaster_irq="7"
+sblaster_dma="1"
+sblaster_hdma="5"
+sblaster_mixer="true"
+sblaster_oplmode="auto"
+sblaster_oplrate="22050"
+
+gus_gus="true"
+gus_gusrate="22050"
+gus_gusbase="240"
+gus_irq1="5"
+gus_irq2="5"
+gus_dma1="3"
+gus_dma2="3"
+gus_ultradir="C:\ULTRASND"
+
+speaker_pcspeaker="true"
+speaker_pcrate="22050"
+speaker_tandy="auto"
+speaker_tandyrate="22050"
+speaker_disney="true"
+
+joystick_joysticktype="auto"
+joystick_timed="true"
+joystick_autofire="false"
+joystick_swap34="false"
+joystick_buttonwrap="true"
+
+serial_serial1="dummy"
+serial_serial2="dummy"
+serial_serial3="disabled"
+serial_serial4="disabled"
+
+dos_xms="true"
+dos_ems="true"
+dos_umb="true"
+dos_keyboardlayout="none"
+
+ipx_ipx="false"
+
+# Erase everything
+if [ -e "$WINEPREFIX/playonlinux_dos.cfg" ]; then
+	source "$WINEPREFIX/playonlinux_dos.cfg"
+fi
+
+
+cat << EOF_CONF > PlayOnLinux_DOSBox.cfg
+[sdl]
+fullscreen=$sdl_fullscreen
+fulldouble=$sdl_fulldouble
+fullresolution=$sdl_fullresolution
+windowresolution=$sdl_windowsresolution
+output=$sdl_output
+autolock=$sdl_autolock
+sensitivity=$sdl_sensitivity
+waitonerror=$sdl_waitonerror
+priority=$sdl_priority
+mapperfile=$sdl_mapperfile
+usescancodes=$sdl_usescancodes
+
+[dosbox]
+language=$dosbox_language
+machine=$dosbox_machine
+captures=$dosbox_captures
+memsize=$dosbox_memsize
+
+[render]
+frameskip=$render_frameskip
+aspect=$render_aspect
+scaler=$render_scaler
+
+[cpu]
+core=$cpu_core
+cycles=$cpu_cycles
+cycleup=$cpu_cycleup
+cycledown=$cpu_cycledown
+
+[mixer]
+nosound=$mixer_nosound
+rate=$mixer_rate
+blocksize=$mixer_blocksize
+prebuffer=$mixer_prebuffer
+
+[midi]
+mpu401=$midi_mpu401
+mididevice=$midi_mididevice
+midiconfig=$midi_midiconfig
+
+[sblaster]
+sbtype=$sblaster_sbtype
+sbbase=$sblaster_sbbase
+irq=$sblaster_irq
+dma=$sblaster_dma
+hdma=$sblaster_hdma
+mixer=$sblaster_mixer
+oplmode=$sblaster_oplmode
+oplrate=$sblaster_oplrate
+
+[gus]
+gus=$gus_gus
+gusrate=$gus_gusrate
+gusbase=$gus_gusbase
+irq1=$gus_irq1
+irq2=$gus_irq2
+dma1=$gus_dma1
+dma2=$gus_dma2
+ultradir=$gus_ultradir
+
+[speaker]
+pcspeaker=$speaker_pcspeaker
+pcrate=$speaker_pcrate
+tandy=$speaker_tandy
+tandyrate=$speaker_tandyrate
+disney=$speaker_disney
+
+[joystick]
+joysticktype=$joystick_joysticktype
+timed=$joystick_timed
+autofire=$joystick_autofine
+swap34=$joystick_swap32
+buttonwrap=$joystick_buttonwrap
+
+[serial]
+serial1=$serial_serial1
+serial2=$serial_serial2
+serial3=$serial_serial3
+serial4=$serial_serial4
+
+[dos]
+xms=$dos_xms
+ems=$dos_ems
+umb=$dos_umb
+keyboardlayout=$dos_keyboardlayout
+
+[ipx]
+ipx=$ipx_ipx
+
+[autoexec]
+@echo off
+cls
+mount y "$tmp_directory"
+cls
+echo Dosbox front-end for $APPLICATION_TITLE
+echo.
+y:\autoexec.bat
+exit
+EOF_CONF
+DOSBox -conf "$tmp_directory/PlayOnLinux_DOSBox.cfg"

@@ -1,66 +1,30 @@
 #!/bin/bash
 
-### DOSBOX Wrapper for PlayOnMac
-# Very very very beta
-# Still a problem with long names
+export PATH="$(dirname $0):$PATH"
 
-echo "Dosbox 0.74"
-echo "Working in $WINEPREFIX"
-winedir="$POL_USER_ROOT/wine/darwin-x86/dosbox-0.74/bin/"
-rwinepath()
-{
-	# Stron minimum requirement for winepath
-	"$winedir/winepath" winepath "$@" 2> /dev/null
-}
-
-if [ "$1" = "wineprefixcreate" ]
-then
-	mkdir -p "$WINEPREFIX/drive_c"
-	exit
-fi 
-if [ "$1" = "wineboot" ] || [ "$1" = "cmd" ]
-then
-	mkdir -p "$WINEPREFIX/drive_c"
-	exit
-fi
-current_rep_unix="$(dirname "$1")"
-current_rep_unix="$PWD"
-source "$PLAYONLINUX/lib/sources"
-
-current_rep_win_first="$(rwinepath -w "$current_rep_unix")"
-realpath="$(rwinepath -w "$1")"
-
-realpath="${realpath/Z:/W:}"
-
-current_rep_win="${current_rep_win_first/Z:/W:}"
-letter=${current_rep_win:0:1}
-
-rm -rf "$POL_USER_ROOT/tmp/dostmp"
-mkdir -p "$POL_USER_ROOT/tmp/dostmp"
-	
-cp "$winedir/../share/bin/"* "$POL_USER_ROOT/tmp/dostmp"
-cd "$POL_USER_ROOT/tmp/dostmp"
-
-echo "mount c $WINEPREFIX/drive_c" > autoexec.bat
-echo "mount W //" >> autoexec.bat
-echo "PATH=Z:\;Y:" >> autoexec.bat
-echo "cls" >> autoexec.bat
-echo "echo Dosbox front-end for $APPLICATION_TITLE" >> autoexec.bat
-echo "echo." >> autoexec.bat
-if [ -e "$WINEPREFIX/drive_c/autoexec.bat" ]; then
-	echo "echo [$APPLICATION_TITLE] Running autoexec.bat" >> autoexec.bat
-	cat $WINEPREFIX/drive_c/autoexec.bat >> autoexec.bat
-fi
-echo "$letter:" >> autoexec.bat
-echo "echo [$APPLICATION_TITLE] Switching directory : $(python $winedir/../share/shortize.py "$current_rep_win")" >> autoexec.bat
-echo "cd $(python $winedir/../share/shortize.py "$current_rep_win")" >> autoexec.bat
-echo "echo [$APPLICATION_TITLE] Running : $(basename "$1")" >> autoexec.bat
-
-echo "$(basename "$(python $winedir/../share/shortize.py "$1")")" >> autoexec.bat
-
-if [ "$WINEDEBUG" = "-all" ]; then	
-echo "exit" >> autoexec.bat
+# Is it a windows or a dos binary ?
+if [ "$1" = "--force-dos" ]; then
+	wrapper="dosbox-wrapper"
+	shift
 fi
 
-cd ..
-DOSBox -conf "$winedir/../share/default.conf"
+if [ "$1" = "--force-win" ]; then
+	wrapper="wine.real"
+	shift
+fi
+
+windows_app="$1"
+
+if [ ! -e "$wrapper" ]; then
+	if [ ! -e "$windows_app" ] ; then 
+		# We are in path, it's wine
+		wrapper="wine.real"
+	elif [ "$(file "$1" | grep 'DOS executable')" = "" -a "$(file "$1" | grep 'DOS batch')" = "" ]; then
+		wrapper="wine.real"
+	else
+		wrapper="dosbox-wrapper"
+	fi
+fi
+
+exec "$wrapper" "$@"
+exit 0

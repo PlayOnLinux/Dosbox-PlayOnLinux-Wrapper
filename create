@@ -25,6 +25,7 @@ cd "/tmp/winebuild-dosbox/bin"
 mv "wine" "wine.real"
 cp "$DOSBOX_Binary" "DOSBox"
 cp "$SCRIPTDIR"/bin/wine* ./
+cp "$SCRIPTDIR"/bin/dosbox-wrapper* ./
 
 if [ "$OS" == "linux" ]; then
 	cd "/tmp/winebuild-dosbox/lib"
@@ -36,6 +37,7 @@ cp -r "$SCRIPTDIR"/share/* ./
 
 destination="${1/-upstream/-dos_support-upstream}"
 cd "/tmp/winebuild-dosbox/" 
-
-tar czvf "$destination" ./
+rm "$destination" 
+tar czvf "$destination" *
+rm "$destination.sha1"
 shasum "$destination" > "$destination.sha1"
