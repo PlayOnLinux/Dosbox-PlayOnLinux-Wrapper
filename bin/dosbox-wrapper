@@ -285,4 +285,4 @@ echo.
 y:\autoexec.bat
 exit
 EOF_CONF
-DOSBox -conf "$tmp_directory/PlayOnLinux_DOSBox.cfg"
+"$winedir/dosbox" -conf "$tmp_directory/PlayOnLinux_DOSBox.cfg"
