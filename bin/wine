@@ -26,5 +26,7 @@ if [ ! -e "$wrapper" ]; then
 	fi
 fi
 
+export DYLD_LIBRARY_PATH="/usr/lib/"
+export DYLD_FALLBACK_LIBRARY_PATH="$PWD/../lib/"
 exec "$wrapper" "$@"
 exit 0
