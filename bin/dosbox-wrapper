@@ -286,5 +286,5 @@ y:\autoexec.bat
 exit
 EOF_CONF
 export DYLD_LIBRARY_PATH="/usr/lib/"
-export DYLD_FALLBACK_LIBRARY_PATH="$PWD/../lib/"
+export DYLD_FALLBACK_LIBRARY_PATH="$winedir/../lib/"
 "$winedir/dosbox" -conf "$tmp_directory/PlayOnLinux_DOSBox.cfg"

@@ -1,6 +1,10 @@
 #!/usr/bin/python
+
 import sys, os
 
+"""
+    This tool transform a long file name into a short one
+"""
 def _contains_forbidden_chars(name):
     return ' ' in name
 
@@ -35,9 +39,9 @@ def shortize(fullpath):
     components = [ _shortize_component(path_component) for path_component in path ]
 
     result = "\\".join(components)
-    return result
+    return(result)
 
 if __name__ == '__main__':
     name = sys.argv[1]
     result = shortize(name)
-    print result
+    print(result)
