@@ -28,5 +28,6 @@ fi
 
 export DYLD_LIBRARY_PATH="/usr/lib/"
 export DYLD_FALLBACK_LIBRARY_PATH="$PWD/../lib/"
+[ "$WINEPREFIX" = "" ] && WINEPREFIX="$HOME/.wine/"
 exec "$wrapper" "$@"
 exit 0
